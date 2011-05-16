@@ -22,7 +22,7 @@
 # the Initial Developer. All Rights Reserved.
 #
 # Contributor(s): Dave Hunt <dhunt@mozilla.com>
-#                 Bob Silverberg <bob.silverberg@gmail.com>
+# Bob Silverberg <bob.silverberg@gmail.com>
 #
 # Alternatively, the contents of this file may be used under the terms of
 # either the GNU General Public License Version 2 or later (the "GPL"), or
@@ -42,10 +42,7 @@
 Created on Dec 22, 2010
 
 '''
-import vars
 import submit_feedback_page
-
-page_load_timeout = vars.ConnectionParameters.page_load_timeout
 
 
 class SubmitIdeaPage(submit_feedback_page.SubmitFeedbackPage):
@@ -63,3 +60,4 @@ class SubmitIdeaPage(submit_feedback_page.SubmitFeedbackPage):
     @property
     def is_submit_feedback_enabled(self):
         return not self.selenium.is_element_present('css=#idea .submit a.disabled')
+
