@@ -45,6 +45,7 @@ from unittestzero import Assert
 
 import submit_happy_feedback_page
 import thanks_page
+import submit_feedback_page
 
 
 class TestFeedback:
@@ -79,7 +80,7 @@ class TestFeedback:
         thanks_pg = submit_happy_feedback_pg.submit_feedback()
         Assert.true(thanks_pg.is_the_current_page)
 
-    @xfail(reason="Bug 655738 - Character count on feedback forms is gone.")
+    @xfail(reason = "Bug 655738 - Character count on feedback forms is gone.")
     def test_remaining_character_count(self, testsetup):
         """
         This testcase covers # 13806 in Litmus
@@ -130,3 +131,29 @@ class TestFeedback:
         Assert.false(submit_happy_feedback_pg.is_remaining_character_count_low)
         Assert.true(submit_happy_feedback_pg.is_remaining_character_count_very_low)
         Assert.false(submit_happy_feedback_pg.is_submit_feedback_enabled)
+
+    def test_submit_feedback(self, testsetup):
+        """
+        Litmus 13651 - Input: Submit feedback page
+        """
+
+        submit_feedback_pg = submit_feedback_page.SubmitFeedbackPage(testsetup)
+        submit_feedback_pg.go_to_submit_feedback_page()
+
+        submit_feedback_pg.click_happy_feedback()
+        Assert.equal(submit_feedback_pg.current_page_url(), "http://input.stage.mozilla.com/en-US/feedback/#happy")
+
+        submit_feedback_pg.back()
+
+        submit_feedback_pg.click_sad_feedback()
+        Assert.equal(submit_feedback_pg.current_page_url(), "http://input.stage.mozilla.com/en-US/feedback/#sad")
+
+        submit_feedback_pg.back()
+
+        submit_feedback_pg.click_idea_feedback()
+        Assert.equal(submit_feedback_pg.current_page_url(), "http://input.stage.mozilla.com/en-US/feedback/#idea")
+
+        submit_feedback_pg.back()
+
+        submit_feedback_pg.click_support_page()
+        Assert.equal(submit_feedback_pg.current_page_url(), "http://support.mozilla.com/en-US/home")
