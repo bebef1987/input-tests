@@ -19,10 +19,7 @@
 # Portions created by the Initial Developer are Copyright (C) 2011
 # the Initial Developer. All Rights Reserved.
 #
-# Contributor(s): Vishal
-#                 David Burns
-#                 Dave Hunt <dhunt@mozilla.com>
-#                 Bebe <florin.strugariu@softvision.ro>
+# Contributor(s): Bebe <florin.strugariu@softvision.ro>
 #
 # Alternatively, the contents of this file may be used under the terms of
 # either the GNU General Public License Version 2 or later (the "GPL"), or
@@ -38,56 +35,62 @@
 #
 # ***** END LICENSE BLOCK *****
 '''
-Created on Nov 24, 2010
+Created on May 17, 2011
 '''
-import input_base_page
-import product_filter_region
+from page import Page
 
+class VisitingRegion(Page):
 
-class SitesPage(input_base_page.InputBasePage):
-
-    _page_title = 'Sites :: Firefox Input'
-
-    _sites_locator = "id('themes')//li[@class='site']"
-
-    def go_to_sites_page(self):
-        self.selenium.open('/sites/')
-        self.is_the_current_page
+    _visiting_locator = "id('filter_sites')"
 
     @property
-    def product_filter(self):
-        return product_filter_region.ProductFilter.ComboFilter(self.testsetup)
+    def visiting_header(self):
+        return self.selenium.get_text("xpath=%s/h3" % self._visiting_locator)
 
     @property
-    def site_count(self):
-        return int(self.selenium.get_xpath_count(self._sites_locator))
+    def visiting_count(self):
+        return int(self.selenium.get_xpath_count("%s//li" % self._visiting_locator))
 
-    @property
-    def sites(self):
-        return [self.Site(self.testsetup, i + 1) for i in range(self.site_count)]
+    def visiting(self, lookup):
+        return self.Visiting(self.testsetup, lookup)
 
-    def site(self, index):
-        return self.Site(self.testsetup, index)
+    def contains_visiting(self, lookup):
+        try :
+            self.selenium.get_text("css=#filter_sites li:contains(%s) a > strong" % lookup)
 
-    class Site(Page):
+            return True
+        except :
+            return False
 
-        _name_locator = " .name a"
+    class Visiting(Page):
 
-        def __init__(self, testsetup, index):
+        _name_locator = " a > strong"
+        _visiting_count_locator = " .count"
+
+        def __init__(self, testsetup, lookup):
             Page.__init__(self, testsetup)
-            self.index = index
+            self.lookup = lookup
 
         def absolute_locator(self, relative_locator):
             return self.root_locator + relative_locator
 
         @property
         def root_locator(self):
-            return "css=#themes .site:nth(%s)" % (self.index - 1)
+            if type(self.lookup) == int:
+                # lookup by index
+                return "css=#filter_sites li:nth(%s)" % self.lookup
+            else:
+                # lookup by name
+                return "css=#filter_sites li:contains(%s)" % self.lookup
 
         @property
         def name(self):
             return self.selenium.get_text(self.absolute_locator(self._name_locator))
 
-        def click_name(self):
+        @property
+        def visiting_count(self):
+            return self.selenium.get_text(self.absolute_locator(self._visiting_count_locator))
+
+        def select(self):
             self.selenium.click(self.absolute_locator(self._name_locator))
-            self.selenium.wait_for_page_to_load(self.timeout)
+            self.selenium.wait_for_page_to_load(page_load_timeout)
