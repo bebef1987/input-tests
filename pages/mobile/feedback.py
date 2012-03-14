@@ -7,6 +7,7 @@
 from selenium.webdriver.common.by import By
 
 from pages.base import BasePage
+from pages.mobile.regions.message import Message
 
 
 class FeedbackPage(BasePage):
@@ -21,6 +22,8 @@ class FeedbackPage(BasePage):
     _statistics_page_locator = (By.ID, 'stats')
     _trends_page_locator = (By.ID, 'trends')
     _settings_page_locator = (By.ID, 'settings')
+
+    _messages_locator = (By.CSS_SELECTOR, 'div.block > ul.messages > li')
 
     def go_to_feedback_page(self):
         print 'opening: ' + self.base_url + '/'
@@ -47,3 +50,16 @@ class FeedbackPage(BasePage):
     @property
     def is_settings_visible(self):
         return self.is_element_visible(self._settings_page_locator)
+
+    @property
+    def messages(self):
+        return [self.MessageList(self.testsetup, message) for message in self.selenium.find_elements(*self._messages_locator)]
+
+    class MessageList(Message):
+
+        _message_details_locator = (By.CSS_SELECTOR, 'a')
+
+        def click(self):
+            self._root_element.find_element(*self._message_details_locator).click()
+            from pages.mobile.message_page import MesssagePage
+            return MesssagePage(self.testsetup)
